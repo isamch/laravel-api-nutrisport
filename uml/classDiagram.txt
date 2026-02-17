@@ -1,0 +1,119 @@
+title NutriSport E-Commerce Data Model
+
+// Users and Roles
+users [icon: user, color: blue] {
+  id string pk
+  name string
+  email string
+  password string
+  role string fk
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Sites (France, Italy, Belgium)
+sites [icon: globe, color: green] {
+  id string pk
+  name string
+  country_code string
+  currency string
+}
+
+// Products
+products [icon: package, color: orange] {
+  id string pk
+  name string
+  description string
+  stock int
+  created_at timestamp
+  updated_at timestamp
+}
+
+// Site-specific pricing
+product_prices [icon: dollar-sign, color: yellow] {
+  id string pk
+  product_id string fk
+  site_id string fk
+  price decimal
+}
+
+// Shopping Cart (Redis - 3 days TTL)
+// carts stored in Redis with key: cart:{user_id|cart_token}
+// Structure: { site_id, items: [{product_id, quantity}], expires_at }
+// No database tables needed for carts
+
+// Orders
+orders [icon: file-text, color: blue] {
+  id string pk
+  user_id string fk
+  site_id string fk
+  status enum
+  payment_method string
+  delivery_address text
+  total decimal
+  created_at timestamp
+}
+
+order_items [icon: box] {
+  id string pk
+  order_id string fk
+  product_id string fk
+  quantity int
+  price_at_purchase decimal
+}
+
+// Notifications
+notifications [icon: bell, color: red] {
+  id string pk
+  user_id string fk
+  type string
+  message text
+  read_at timestamp
+  created_at timestamp
+}
+roles [icon: shield, color: teal] {
+  
+  id string pk
+  name string
+  description string
+}
+permissions [icon: key, color: gray] {
+  
+  id string pk
+  name string
+  description string
+}
+role_permissions [icon: link] {
+  
+  id string pk
+  role_id string fk
+  permission_id string fk
+}
+product_images [icon: image, color: pink] {
+  
+  id string pk
+  product_id string fk
+  url string
+  alt_text string
+  sort_order int
+}
+
+
+
+
+
+// Relationships
+users.id < orders.user_id
+users.id < notifications.user_id
+
+sites.id < product_prices.site_id
+sites.id < orders.site_id
+
+products.id < product_prices.product_id
+products.id < order_items.product_id
+
+orders.id < order_items.order_id
+roles.id < users.role
+roles.id < role_permissions.role_id
+permissions.id < role_permissions.permission_id
+products.id < product_images.product_id
