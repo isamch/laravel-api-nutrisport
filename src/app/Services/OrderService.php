@@ -43,7 +43,18 @@ class OrderService
 
             $this->cartService->clear($userId);
 
-            return $order->load(['items.product', 'address']);
+            $order->load(['items.product', 'address', 'user']);
+
+            // Send emails
+            \Mail::to($order->user->email)->send(new \App\Mail\OrderCreated($order));
+            
+            $adminEmail = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'administrateur'))
+                ->first()?->email;
+            if ($adminEmail) {
+                \Mail::to($adminEmail)->send(new \App\Mail\OrderCreated($order));
+            }
+
+            return $order;
         });
     }
 
