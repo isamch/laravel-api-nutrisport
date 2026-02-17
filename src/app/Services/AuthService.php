@@ -19,6 +19,8 @@ class AuthService
             'email_verified_at' => now(),
         ]);
 
+        // Load role before generating token
+        $user->load('role');
         $token = auth('api')->login($user);
 
         return $this->respondWithToken($token);
@@ -29,6 +31,9 @@ class AuthService
         if (!$token = auth('api')->attempt($credentials)) {
             return null;
         }
+
+        // Load role after login
+        auth('api')->user()->load('role');
 
         return $this->respondWithToken($token);
     }
@@ -50,11 +55,16 @@ class AuthService
 
     protected function respondWithToken($token)
     {
+        $user = auth('api')->user()->load('role');
+        
+        // Get TTL from custom claims or default
+        $ttl = $user->getJWTCustomClaims()['ttl'] ?? auth('api')->factory()->getTTL();
+        
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => auth('api')->factory()->getTTL() * 60,
-            'user' => auth('api')->user()->load('role'),
+            'expires_in' => $ttl * 60, // Convert minutes to seconds
+            'user' => $user,
         ];
     }
 }

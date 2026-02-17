@@ -6,9 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginRequest;
 use App\Http\Requests\Auth\RegisterRequest;
 use App\Services\AuthService;
+use App\Traits\ApiResponse;
 
 class AuthController extends Controller
 {
+    use ApiResponse;
     protected $authService;
 
     public function __construct(AuthService $authService)
@@ -19,7 +21,7 @@ class AuthController extends Controller
     public function register(RegisterRequest $request)
     {
         $result = $this->authService->register($request->validated());
-        return response()->json($result, 201);
+        return $this->success($result, 'User registered successfully', 201);
     }
 
     public function login(LoginRequest $request)
@@ -27,25 +29,25 @@ class AuthController extends Controller
         $result = $this->authService->login($request->only('email', 'password'));
 
         if (!$result) {
-            return response()->json(['error' => 'Unauthorized'], 401);
+            return $this->error('Invalid credentials', 401);
         }
 
-        return response()->json($result);
+        return $this->success($result, 'Login successful');
     }
 
     public function me()
     {
-        return response()->json($this->authService->me());
+        return $this->success($this->authService->me());
     }
 
     public function logout()
     {
         $this->authService->logout();
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->success(null, 'Successfully logged out');
     }
 
     public function refresh()
     {
-        return response()->json($this->authService->refresh());
+        return $this->success($this->authService->refresh(), 'Token refreshed');
     }
 }

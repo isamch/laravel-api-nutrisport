@@ -77,6 +77,14 @@ class User extends Authenticatable implements JWTSubject
 
     public function getJWTCustomClaims()
     {
-        return [];
+        // Set TTL based on role
+        $ttl = match($this->role->name ?? 'client') {
+            'administrateur' => 480, // 8 hours
+            'vendeur' => 360,        // 6 hours
+            'client' => 360,         // 6 hours
+            default => 360,
+        };
+
+        return ['ttl' => $ttl];
     }
 }
