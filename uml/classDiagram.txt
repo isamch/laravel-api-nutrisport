@@ -26,6 +26,7 @@ products [icon: package, color: orange] {
   id string pk
   name string
   description string
+  stock int
   created_at timestamp
   updated_at timestamp
 }
@@ -38,20 +39,6 @@ categories [icon: folder, color: brown] {
   parent_id string fk
   description string
   created_at timestamp
-}
-
-product_categories [icon: link] {
-  id string pk
-  product_id string fk
-  category_id string fk
-}
-
-// Product Stock per Site
-product_stock [icon: database, color: cyan] {
-  id string pk
-  product_id string fk
-  site_id string fk
-  quantity int
 }
 
 // Site-specific pricing
@@ -151,12 +138,10 @@ users.id < addresses.user_id
 
 sites.id < product_prices.site_id
 sites.id < orders.site_id
-sites.id < product_stock.site_id
 
 products.id < product_prices.product_id
 products.id < order_items.product_id
 products.id < product_images.product_id
-products.id < product_stock.product_id
 products.id < product_categories.product_id
 
 categories.id < product_categories.category_id
