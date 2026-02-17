@@ -3,7 +3,10 @@
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Public\ProductController as PublicProductController;
 use App\Http\Controllers\Api\Public\CategoryController as PublicCategoryController;
+use App\Http\Controllers\Api\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
+use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\Api\Vendeur\ProductController as VendeurProductController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes
@@ -30,16 +33,21 @@ Route::middleware('auth:api')->group(function () {
 
     // Client routes
     Route::prefix('client')->middleware('role:client')->group(function () {
-        // Cart, Orders will be added here
+        Route::get('orders', [ClientOrderController::class, 'index']);
+        Route::get('orders/{id}', [ClientOrderController::class, 'show']);
+        Route::post('orders', [ClientOrderController::class, 'store']);
     });
 
     // Admin routes
     Route::prefix('admin')->middleware('role:administrateur')->group(function () {
         Route::apiResource('products', AdminProductController::class);
+        Route::get('orders', [AdminOrderController::class, 'index']);
+        Route::get('orders/{id}', [AdminOrderController::class, 'show']);
+        Route::put('orders/{id}/status', [AdminOrderController::class, 'updateStatus']);
     });
 
     // Vendeur routes
     Route::prefix('vendeur')->middleware('role:vendeur')->group(function () {
-        Route::apiResource('products', AdminProductController::class);
+        Route::apiResource('products', VendeurProductController::class);
     });
 });
