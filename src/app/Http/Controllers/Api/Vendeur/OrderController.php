@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Admin;
+namespace App\Http\Controllers\Api\Vendeur;
 
 use App\Http\Controllers\Controller;
 use App\Services\OrderService;
@@ -17,9 +17,9 @@ class OrderController extends Controller
     {
         $days = $request->input('days', 5);
         $filters = $request->only(['site_id', 'status']);
-
+        
         $orders = $this->orderService->getRecentOrders($days, $filters);
-
+        
         return $this->success([
             'orders' => $orders->items(),
             'pagination' => [
@@ -33,18 +33,7 @@ class OrderController extends Controller
     public function show($id)
     {
         $order = $this->orderService->getById($id);
-
+        
         return $this->success($order);
-    }
-
-    public function updateStatus(Request $request, $id)
-    {
-        $request->validate([
-            'status' => 'required|in:pending,processing,completed,cancelled'
-        ]);
-
-        $order = $this->orderService->updateStatus($id, $request->status);
-
-        return $this->success($order, 'Order status updated successfully');
     }
 }

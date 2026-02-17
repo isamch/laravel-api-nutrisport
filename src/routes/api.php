@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Vendeur\ProductController as VendeurProductController;
+use App\Http\Controllers\Api\Vendeur\OrderController as VendeurOrderController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes
@@ -49,5 +50,7 @@ Route::middleware('auth:api')->group(function () {
     // Vendeur routes
     Route::prefix('vendeur')->middleware('role:vendeur')->group(function () {
         Route::apiResource('products', VendeurProductController::class);
+        Route::get('orders', [VendeurOrderController::class, 'index']);
+        Route::get('orders/{id}', [VendeurOrderController::class, 'show']);
     });
 });
