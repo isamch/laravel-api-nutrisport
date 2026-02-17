@@ -19,7 +19,6 @@ class AuthService
             'email_verified_at' => now(),
         ]);
 
-        // Load role before generating token
         $user->load('role');
         $token = auth('api')->login($user);
 
@@ -32,7 +31,6 @@ class AuthService
             return null;
         }
 
-        // Load role after login
         auth('api')->user()->load('role');
 
         return $this->respondWithToken($token);
@@ -40,14 +38,17 @@ class AuthService
 
     public function me()
     {
-        $user = auth('api')->user()->load('role');
-        
+        $user = auth('api')->user()->load(['role.permissions']);
+
         return [
             'id' => $user->id,
             'name' => $user->name,
             'email' => $user->email,
             'phone' => $user->phone,
-            'role' => $user->role->name,
+            'role' => [
+                'name' => $user->role->name,
+                'permissions' => $user->role->permissions->pluck('name'),
+            ],
             'email_verified_at' => $user->email_verified_at,
         ];
     }
@@ -64,25 +65,21 @@ class AuthService
 
     protected function respondWithToken($token)
     {
-        $user = auth('api')->user()->load('role');
-        
-        $ttl = match($user->role->name ?? 'client') {
-            'administrateur' => 480,
-            'vendeur' => 360,
-            'client' => 360,
-            default => 360,
-        };
-        
+        $user = auth('api')->user()->load(['role.permissions']);
+
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => $ttl * 60,
+            'expires_in' => auth('api')->factory()->getTTL() * 60,
             'user' => [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'phone' => $user->phone,
-                'role' => $user->role->name,
+                'role' => [
+                    'name' => $user->role->name,
+                    'permissions' => $user->role->permissions->pluck('name'),
+                ],
             ],
         ];
     }

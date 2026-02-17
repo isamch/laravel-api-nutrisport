@@ -11,11 +11,6 @@ class CustomJWTGuard extends BaseJWTGuard
         $user = $this->provider->retrieveByCredentials($credentials);
 
         if ($this->hasValidCredentials($user, $credentials)) {
-            if ($login) {
-                $ttl = $this->getCustomTTL($user);
-                $this->jwt->factory()->setTTL($ttl);
-            }
-
             return $login ? $this->login($user) : true;
         }
 
@@ -37,11 +32,13 @@ class CustomJWTGuard extends BaseJWTGuard
     {
         $user->load('role');
         
-        return match($user->role->name ?? 'client') {
+        $ttl = match($user->role->name ?? 'client') {
             'administrateur' => 480,
             'vendeur' => 360,
             'client' => 360,
             default => 360,
         };
+        
+        return (int) $ttl;
     }
 }
