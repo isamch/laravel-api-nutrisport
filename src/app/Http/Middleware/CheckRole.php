@@ -15,12 +15,12 @@ class CheckRole
         }
 
         $user = auth('api')->user();
+        $user->load('role');
 
-        if ($user->id === 1) {
+        // Administrateur has access to all resources
+        if ($user->role->name === 'administrateur') {
             return $next($request);
         }
-
-        $user->load('role');
 
         if (!in_array($user->role->name, $roles)) {
             return response()->json(['success' => false, 'message' => 'Forbidden'], 403);
