@@ -8,20 +8,31 @@ use Illuminate\Support\Facades\DB;
 
 class OrderService
 {
-    public function create(array $data)
+    public function __construct(private CartService $cartService) {}
+
+    public function createFromCart($userId, $siteCode, $addressId, $paymentMethod)
     {
-        return DB::transaction(function () use ($data) {
+        $cart = $this->cartService->get($userId);
+        
+        if (empty($cart)) {
+            throw new \Exception('Cart is empty');
+        }
+
+        $total = $this->cartService->getTotal($userId);
+        $siteId = \App\Models\Site::where('code', $siteCode)->value('id');
+
+        return DB::transaction(function () use ($userId, $siteId, $addressId, $paymentMethod, $total, $cart) {
             $order = Order::create([
-                'user_id' => $data['user_id'],
-                'site_id' => $data['site_id'],
-                'address_id' => $data['address_id'],
+                'user_id' => $userId,
+                'site_id' => $siteId,
+                'address_id' => $addressId,
                 'status' => 'pending',
-                'payment_method' => $data['payment_method'],
+                'payment_method' => $paymentMethod,
                 'payment_status' => 'pending',
-                'total' => $data['total'],
+                'total' => $total,
             ]);
 
-            foreach ($data['items'] as $item) {
+            foreach ($cart as $item) {
                 OrderItem::create([
                     'order_id' => $order->id,
                     'product_id' => $item['product_id'],
@@ -29,6 +40,8 @@ class OrderService
                     'price_at_purchase' => $item['price'],
                 ]);
             }
+
+            $this->cartService->clear($userId);
 
             return $order->load(['items.product', 'address']);
         });

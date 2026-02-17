@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\Public\ProductController as PublicProductController;
 use App\Http\Controllers\Api\Public\CategoryController as PublicCategoryController;
 use App\Http\Controllers\Api\Client\OrderController as ClientOrderController;
+use App\Http\Controllers\Api\Client\CartController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Vendeur\ProductController as VendeurProductController;
@@ -21,6 +22,15 @@ Route::prefix('public')->group(function () {
     Route::get('products', [PublicProductController::class, 'index']);
     Route::get('products/{id}', [PublicProductController::class, 'show']);
     Route::get('categories', [PublicCategoryController::class, 'index']);
+});
+
+// Cart routes (available for both guest and authenticated users)
+Route::prefix('cart')->group(function () {
+    Route::get('/', [CartController::class, 'index']);
+    Route::post('/', [CartController::class, 'add']);
+    Route::put('/{productId}', [CartController::class, 'update']);
+    Route::delete('/{productId}', [CartController::class, 'remove']);
+    Route::delete('/', [CartController::class, 'clear']);
 });
 
 // Protected routes

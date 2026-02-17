@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Client;
 
 use App\Http\Controllers\Controller;
 use App\Services\OrderService;
+use App\Http\Requests\Order\CheckoutRequest;
 use App\Traits\ApiResponse;
 use Illuminate\Http\Request;
 
@@ -35,9 +36,15 @@ class OrderController extends Controller
         return $this->success($order);
     }
 
-    public function store(Request $request)
+    public function store(CheckoutRequest $request)
     {
-        // Will be implemented with Cart
-        return $this->error('Cart integration required', 501);
+        $order = $this->orderService->createFromCart(
+            auth('api')->id(),
+            $request->site,
+            $request->address_id,
+            $request->payment_method
+        );
+
+        return $this->success($order, 'Order created successfully', 201);
     }
 }
