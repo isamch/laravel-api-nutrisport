@@ -14,25 +14,56 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
+            // Products
             [
-                'name' => 'manage_products',
-                'description' => 'Create, update, delete products'
+                'name' => 'create_product',
+                'description' => 'Créer un produit'
             ],
             [
-                'name' => 'view_orders',
-                'description' => 'View all orders'
+                'name' => 'view_product',
+                'description' => 'Voir les produits'
             ],
             [
-                'name' => 'manage_orders',
-                'description' => 'Update order status'
+                'name' => 'update_product',
+                'description' => 'Modifier un produit'
             ],
             [
-                'name' => 'view_customers',
-                'description' => 'View customer information'
+                'name' => 'delete_product',
+                'description' => 'Supprimer un produit'
+            ],
+
+            // Orders
+            [
+                'name' => 'view_all_orders',
+                'description' => 'Voir toutes les commandes'
+            ],
+            [
+                'name' => 'view_own_orders',
+                'description' => 'Voir ses propres commandes'
+            ],
+            [
+                'name' => 'update_order_status',
+                'description' => 'Modifier le statut de commande'
+            ],
+
+            // Users
+            [
+                'name' => 'create_vendeur',
+                'description' => 'Créer un vendeur'
+            ],
+            [
+                'name' => 'view_users',
+                'description' => 'Voir les utilisateurs'
             ],
             [
                 'name' => 'manage_users',
-                'description' => 'Create, update, delete users'
+                'description' => 'Gérer les utilisateurs'
+            ],
+
+            // Reports
+            [
+                'name' => 'view_reports',
+                'description' => 'Voir les rapports'
             ],
         ];
 
@@ -45,13 +76,28 @@ class PermissionSeeder extends Seeder
             ]);
         }
 
-        // Assign all permissions to admin role
+        // Assign all permissions to administrateur role
         $adminRoleId = DB::table('roles')->where('name', 'administrateur')->value('id');
         $permissionIds = DB::table('permissions')->pluck('id');
 
         foreach ($permissionIds as $permissionId) {
             DB::table('role_permissions')->insert([
                 'role_id' => $adminRoleId,
+                'permission_id' => $permissionId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
+
+        // Assign limited permissions to vendeur role
+        $vendeurRoleId = DB::table('roles')->where('name', 'vendeur')->value('id');
+        $vendeurPermissions = DB::table('permissions')
+            ->whereIn('name', ['view_product', 'view_own_orders'])
+            ->pluck('id');
+
+        foreach ($vendeurPermissions as $permissionId) {
+            DB::table('role_permissions')->insert([
+                'role_id' => $vendeurRoleId,
                 'permission_id' => $permissionId,
                 'created_at' => now(),
                 'updated_at' => now(),
