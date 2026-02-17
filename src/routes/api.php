@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Public\ProductController as PublicProductController
 use App\Http\Controllers\Api\Public\CategoryController as PublicCategoryController;
 use App\Http\Controllers\Api\Client\OrderController as ClientOrderController;
 use App\Http\Controllers\Api\Client\CartController;
+use App\Http\Controllers\Api\Client\ProfileController;
 use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Vendeur\ProductController as VendeurProductController;
@@ -44,6 +45,9 @@ Route::middleware('auth:api')->group(function () {
 
     // Client routes
     Route::prefix('client')->middleware('role:client')->group(function () {
+        Route::put('profile', [ProfileController::class, 'update']);
+        Route::put('profile/password', [ProfileController::class, 'updatePassword']);
+        
         Route::get('orders', [ClientOrderController::class, 'index']);
         Route::get('orders/{id}', [ClientOrderController::class, 'show']);
         Route::post('orders', [ClientOrderController::class, 'store']);
