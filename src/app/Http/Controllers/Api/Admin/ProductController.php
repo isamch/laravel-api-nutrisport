@@ -18,7 +18,25 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getAll();
+        $filters = request()->all();
+        $products = $this->productService->getAll($filters);
+        
+        return $this->success([
+            'products' => ProductResource::collection($products),
+            'pagination' => [
+                'total' => $products->total(),
+                'current_page' => $products->currentPage(),
+                'last_page' => $products->lastPage(),
+            ]
+        ]);
+    }
+
+    public function getVendeurProducts($vendeurId)
+    {
+        $filters = request()->all();
+        $filters['created_by'] = $vendeurId;
+        
+        $products = $this->productService->getAll($filters);
         
         return $this->success([
             'products' => ProductResource::collection($products),
