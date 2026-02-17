@@ -90,7 +90,7 @@ class ProductService
             $siteId = \Cache::remember("site_{$filters['site']}", 86400, function () use ($filters) {
                 return \DB::table('sites')->where('country_code', strtoupper($filters['site']))->value('id');
             });
-            
+
             if ($siteId) {
                 $query->whereHas('prices', fn($q) => $q->where('site_id', $siteId));
                 $filters['site_id'] = $siteId; // For ProductResource
@@ -109,8 +109,17 @@ class ProductService
         }
 
         // Filter by stock availability
-        if (isset($filters['in_stock']) && filter_var($filters['in_stock'], FILTER_VALIDATE_BOOLEAN)) {
-            $query->whereHas('stock', fn($q) => $q->where('quantity', '>', 0));
+        if (isset($filters['in_stock'])) {
+            $inStock = filter_var($filters['in_stock'], FILTER_VALIDATE_BOOLEAN);
+
+            if ($inStock) {
+                // Show only products with stock
+                $query->whereHas('stock', fn($q) => $q->where('quantity', '>', 0));
+            } else {
+                // Show only products without stock
+                $query->whereDoesntHave('stock', fn($q) => $q->where('quantity', '>', 0))
+                      ->orWhereHas('stock', fn($q) => $q->where('quantity', '=', 0));
+            }
         }
 
         $perPage = min((int)($filters['per_page'] ?? 15), 100); // Max 100
@@ -125,7 +134,7 @@ class ProductService
             $siteId = \Cache::remember("site_{$site}", 86400, function () use ($site) {
                 return \DB::table('sites')->where('country_code', strtoupper($site))->value('id');
             });
-            
+
             if ($siteId) {
                 $query->with(['prices' => fn($q) => $q->where('site_id', $siteId)])
                       ->with(['stock' => fn($q) => $q->where('site_id', $siteId)]);
