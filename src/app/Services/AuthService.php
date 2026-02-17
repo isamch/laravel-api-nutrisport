@@ -57,8 +57,13 @@ class AuthService
     {
         $user = auth('api')->user()->load('role');
         
-        // Get TTL from custom claims or default
-        $ttl = $user->getJWTCustomClaims()['ttl'] ?? auth('api')->factory()->getTTL();
+        // Set TTL based on role
+        $ttl = match($user->role->name ?? 'client') {
+            'administrateur' => 480, // 8 hours
+            'vendeur' => 360,        // 6 hours
+            'client' => 360,         // 6 hours
+            default => 360,
+        };
         
         return [
             'access_token' => $token,
