@@ -85,28 +85,51 @@ class ProductService
     {
         $query = Product::with(['prices', 'stock', 'categories']);
 
-        if (!empty($filters['site_id'])) {
-            $query->whereHas('prices', fn($q) => $q->where('site_id', $filters['site_id']));
+        // Filter by site (country code: FR, IT, BE)
+        if (!empty($filters['site'])) {
+            $siteId = \Cache::remember("site_{$filters['site']}", 86400, function () use ($filters) {
+                return \DB::table('sites')->where('country_code', strtoupper($filters['site']))->value('id');
+            });
+            
+            if ($siteId) {
+                $query->whereHas('prices', fn($q) => $q->where('site_id', $siteId));
+                $filters['site_id'] = $siteId; // For ProductResource
+            }
         }
 
-        if (!empty($filters['category_id'])) {
-            $query->whereHas('categories', fn($q) => $q->where('categories.id', $filters['category_id']));
+        // Filter by category (slug or id)
+        if (!empty($filters['category'])) {
+            $query->whereHas('categories', function($q) use ($filters) {
+                if (is_numeric($filters['category'])) {
+                    $q->where('categories.id', $filters['category']);
+                } else {
+                    $q->where('categories.slug', $filters['category']);
+                }
+            });
         }
 
-        if (!empty($filters['in_stock'])) {
+        // Filter by stock availability
+        if (isset($filters['in_stock']) && filter_var($filters['in_stock'], FILTER_VALIDATE_BOOLEAN)) {
             $query->whereHas('stock', fn($q) => $q->where('quantity', '>', 0));
         }
 
-        return $query->paginate($filters['per_page'] ?? 15);
+        $perPage = min((int)($filters['per_page'] ?? 15), 100); // Max 100
+        return $query->paginate($perPage);
     }
 
-    public function getById($id, $siteId = null)
+    public function getById($id, $site = null)
     {
         $query = Product::with(['prices', 'stock', 'categories', 'images']);
 
-        if ($siteId) {
-            $query->with(['prices' => fn($q) => $q->where('site_id', $siteId)])
-                  ->with(['stock' => fn($q) => $q->where('site_id', $siteId)]);
+        if ($site) {
+            $siteId = \Cache::remember("site_{$site}", 86400, function () use ($site) {
+                return \DB::table('sites')->where('country_code', strtoupper($site))->value('id');
+            });
+            
+            if ($siteId) {
+                $query->with(['prices' => fn($q) => $q->where('site_id', $siteId)])
+                      ->with(['stock' => fn($q) => $q->where('site_id', $siteId)]);
+            }
         }
 
         return $query->findOrFail($id);

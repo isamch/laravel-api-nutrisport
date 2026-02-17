@@ -9,7 +9,14 @@ class ProductResource extends JsonResource
 {
     public function toArray(Request $request): array
     {
-        $siteId = $request->query('site_id');
+        $site = $request->query('site');
+        $siteId = null;
+        
+        if ($site) {
+            $siteId = \Cache::remember("site_{$site}", 86400, function () use ($site) {
+                return \DB::table('sites')->where('country_code', strtoupper($site))->value('id');
+            });
+        }
 
         return [
             'id' => $this->id,

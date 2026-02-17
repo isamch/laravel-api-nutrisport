@@ -16,7 +16,7 @@ class ProductController extends Controller
 
     public function index(Request $request)
     {
-        $filters = $request->only(['site_id', 'category_id', 'in_stock']);
+        $filters = $request->only(['site', 'category', 'in_stock', 'per_page']);
         $products = $this->productService->getAll($filters);
         
         return $this->success([
@@ -32,8 +32,8 @@ class ProductController extends Controller
 
     public function show(Request $request, $id)
     {
-        $siteId = $request->query('site_id');
-        $product = $this->productService->getById($id, $siteId);
+        $site = $request->query('site');
+        $product = $this->productService->getById($id, $site);
         
         return $this->success(new ProductResource($product));
     }
