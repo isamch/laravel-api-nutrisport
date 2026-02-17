@@ -40,7 +40,16 @@ class AuthService
 
     public function me()
     {
-        return auth('api')->user()->load('role');
+        $user = auth('api')->user()->load('role');
+        
+        return [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'phone' => $user->phone,
+            'role' => $user->role->name,
+            'email_verified_at' => $user->email_verified_at,
+        ];
     }
 
     public function logout()
@@ -57,19 +66,24 @@ class AuthService
     {
         $user = auth('api')->user()->load('role');
         
-        // Set TTL based on role
         $ttl = match($user->role->name ?? 'client') {
-            'administrateur' => 480, // 8 hours
-            'vendeur' => 360,        // 6 hours
-            'client' => 360,         // 6 hours
+            'administrateur' => 480,
+            'vendeur' => 360,
+            'client' => 360,
             default => 360,
         };
         
         return [
             'access_token' => $token,
             'token_type' => 'bearer',
-            'expires_in' => $ttl * 60, // Convert minutes to seconds
-            'user' => $user,
+            'expires_in' => $ttl * 60,
+            'user' => [
+                'id' => $user->id,
+                'name' => $user->name,
+                'email' => $user->email,
+                'phone' => $user->phone,
+                'role' => $user->role->name,
+            ],
         ];
     }
 }
