@@ -6,7 +6,9 @@ users [icon: user, color: blue] {
   name string
   email string
   password string
-  role string fk
+  phone string
+  email_verified_at timestamp
+  role_id string fk
   created_at timestamp
   updated_at timestamp
 }
@@ -24,9 +26,32 @@ products [icon: package, color: orange] {
   id string pk
   name string
   description string
-  stock int
   created_at timestamp
   updated_at timestamp
+}
+
+// Product Categories
+categories [icon: folder, color: brown] {
+  id string pk
+  name string
+  slug string
+  parent_id string fk
+  description string
+  created_at timestamp
+}
+
+product_categories [icon: link] {
+  id string pk
+  product_id string fk
+  category_id string fk
+}
+
+// Product Stock per Site
+product_stock [icon: database, color: cyan] {
+  id string pk
+  product_id string fk
+  site_id string fk
+  quantity int
 }
 
 // Site-specific pricing
@@ -42,15 +67,32 @@ product_prices [icon: dollar-sign, color: yellow] {
 // Structure: { site_id, items: [{product_id, quantity}], expires_at }
 // No database tables needed for carts
 
+// User Addresses
+addresses [icon: map-pin, color: indigo] {
+  id string pk
+  user_id string fk
+  label string
+  street string
+  city string
+  postal_code string
+  country string
+  phone string
+  is_default boolean
+  created_at timestamp
+}
+
 // Orders
 orders [icon: file-text, color: blue] {
   id string pk
   user_id string fk
   site_id string fk
+  address_id string fk
   status enum
   payment_method string
-  delivery_address text
+  payment_status enum
   total decimal
+  remaining_amount decimal
+  tracking_number string
   created_at timestamp
 }
 
@@ -105,15 +147,26 @@ product_images [icon: image, color: pink] {
 // Relationships
 users.id < orders.user_id
 users.id < notifications.user_id
+users.id < addresses.user_id
 
 sites.id < product_prices.site_id
 sites.id < orders.site_id
+sites.id < product_stock.site_id
 
 products.id < product_prices.product_id
 products.id < order_items.product_id
+products.id < product_images.product_id
+products.id < product_stock.product_id
+products.id < product_categories.product_id
+
+categories.id < product_categories.category_id
+categories.id < categories.parent_id
+
+addresses.id < orders.address_id
 
 orders.id < order_items.order_id
-roles.id < users.role
+
+roles.id < users.role_id
 roles.id < role_permissions.role_id
+
 permissions.id < role_permissions.permission_id
-products.id < product_images.product_id
