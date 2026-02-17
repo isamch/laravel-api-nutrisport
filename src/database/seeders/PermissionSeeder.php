@@ -14,11 +14,26 @@ class PermissionSeeder extends Seeder
     public function run(): void
     {
         $permissions = [
-            ['name' => 'manage_products', 'description' => 'Create, update, delete products'],
-            ['name' => 'view_orders', 'description' => 'View all orders'],
-            ['name' => 'manage_orders', 'description' => 'Update order status'],
-            ['name' => 'view_customers', 'description' => 'View customer information'],
-            ['name' => 'manage_users', 'description' => 'Create, update, delete users'],
+            [
+                'name' => 'manage_products',
+                'description' => 'Create, update, delete products'
+            ],
+            [
+                'name' => 'view_orders',
+                'description' => 'View all orders'
+            ],
+            [
+                'name' => 'manage_orders',
+                'description' => 'Update order status'
+            ],
+            [
+                'name' => 'view_customers',
+                'description' => 'View customer information'
+            ],
+            [
+                'name' => 'manage_users',
+                'description' => 'Create, update, delete users'
+            ],
         ];
 
         foreach ($permissions as $permission) {
@@ -31,7 +46,7 @@ class PermissionSeeder extends Seeder
         }
 
         // Assign all permissions to admin role
-        $adminRoleId = DB::table('roles')->where('name', 'admin')->value('id');
+        $adminRoleId = DB::table('roles')->where('name', 'administrateur')->value('id');
         $permissionIds = DB::table('permissions')->pluck('id');
 
         foreach ($permissionIds as $permissionId) {
