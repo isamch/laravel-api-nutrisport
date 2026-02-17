@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductPrice;
-use App\Models\ProductStock;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -15,6 +14,7 @@ class ProductService
             $product = Product::create([
                 'name' => $data['name'],
                 'description' => $data['description'],
+                'stock' => $data['stock'] ?? 0,
             ]);
 
             // Add prices for each site
@@ -26,31 +26,28 @@ class ProductService
                 ]);
             }
 
-            // Add stock for each site
-            foreach ($data['stock'] as $siteId => $quantity) {
-                ProductStock::create([
-                    'product_id' => $product->id,
-                    'site_id' => $siteId,
-                    'quantity' => $quantity,
-                ]);
-            }
-
             // Attach categories
             if (!empty($data['categories'])) {
                 $product->categories()->attach($data['categories']);
             }
 
-            return $product->load(['prices', 'stock', 'categories']);
+            return $product->load(['prices', 'categories']);
         });
     }
 
     public function update(Product $product, array $data)
     {
         return DB::transaction(function () use ($product, $data) {
-            $product->update([
+            $updateData = [
                 'name' => $data['name'],
                 'description' => $data['description'],
-            ]);
+            ];
+
+            if (isset($data['stock'])) {
+                $updateData['stock'] = $data['stock'];
+            }
+
+            $product->update($updateData);
 
             // Update prices
             if (isset($data['prices'])) {
@@ -62,28 +59,18 @@ class ProductService
                 }
             }
 
-            // Update stock
-            if (isset($data['stock'])) {
-                foreach ($data['stock'] as $siteId => $quantity) {
-                    ProductStock::updateOrCreate(
-                        ['product_id' => $product->id, 'site_id' => $siteId],
-                        ['quantity' => $quantity]
-                    );
-                }
-            }
-
             // Update categories
             if (isset($data['categories'])) {
                 $product->categories()->sync($data['categories']);
             }
 
-            return $product->load(['prices', 'stock', 'categories']);
+            return $product->load(['prices', 'categories']);
         });
     }
 
     public function getAll(array $filters = [])
     {
-        $query = Product::with(['prices', 'stock', 'categories']);
+        $query = Product::with(['prices', 'categories']);
 
         // Filter by site (country code: FR, IT, BE)
         if (!empty($filters['site'])) {
@@ -93,7 +80,7 @@ class ProductService
 
             if ($siteId) {
                 $query->whereHas('prices', fn($q) => $q->where('site_id', $siteId));
-                $filters['site_id'] = $siteId; // For ProductResource
+                $filters['site_id'] = $siteId;
             }
         }
 
@@ -113,22 +100,19 @@ class ProductService
             $inStock = filter_var($filters['in_stock'], FILTER_VALIDATE_BOOLEAN);
 
             if ($inStock) {
-                // Show only products with stock
-                $query->whereHas('stock', fn($q) => $q->where('quantity', '>', 0));
+                $query->where('stock', '>', 0);
             } else {
-                // Show only products without stock
-                $query->whereDoesntHave('stock', fn($q) => $q->where('quantity', '>', 0))
-                      ->orWhereHas('stock', fn($q) => $q->where('quantity', '=', 0));
+                $query->where('stock', '=', 0);
             }
         }
 
-        $perPage = min((int)($filters['per_page'] ?? 15), 100); // Max 100
+        $perPage = min((int)($filters['per_page'] ?? 15), 100);
         return $query->paginate($perPage);
     }
 
     public function getById($id, $site = null)
     {
-        $query = Product::with(['prices', 'stock', 'categories', 'images']);
+        $query = Product::with(['prices', 'categories', 'images']);
 
         if ($site) {
             $siteId = \Cache::remember("site_{$site}", 86400, function () use ($site) {
@@ -136,8 +120,7 @@ class ProductService
             });
 
             if ($siteId) {
-                $query->with(['prices' => fn($q) => $q->where('site_id', $siteId)])
-                      ->with(['stock' => fn($q) => $q->where('site_id', $siteId)]);
+                $query->with(['prices' => fn($q) => $q->where('site_id', $siteId)]);
             }
         }
 

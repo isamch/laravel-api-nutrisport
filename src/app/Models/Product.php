@@ -6,7 +6,11 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'description'];
+    protected $fillable = ['name', 'description', 'stock'];
+
+    protected $casts = [
+        'stock' => 'integer'
+    ];
 
     public function categories()
     {
@@ -16,11 +20,6 @@ class Product extends Model
     public function prices()
     {
         return $this->hasMany(ProductPrice::class);
-    }
-
-    public function stock()
-    {
-        return $this->hasMany(ProductStock::class);
     }
 
     public function images()

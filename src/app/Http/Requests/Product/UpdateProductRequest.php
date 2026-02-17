@@ -21,8 +21,7 @@ class UpdateProductRequest extends FormRequest
             'description' => 'sometimes|string',
             'prices' => 'sometimes|array',
             'prices.*' => 'numeric|min:0',
-            'stock' => 'sometimes|array',
-            'stock.*' => 'integer|min:0',
+            'stock' => 'sometimes|integer|min:0',
             'categories' => 'sometimes|array',
             'categories.*' => 'exists:categories,id',
         ];
