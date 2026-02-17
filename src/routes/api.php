@@ -25,8 +25,11 @@ Route::middleware('auth:api')->group(function () {
         Route::post('refresh', [AuthController::class, 'refresh']);
     });
 
+
     // Admin routes (only administrateur and vendeur)
     Route::prefix('admin')->middleware('role:administrateur,vendeur')->group(function () {
         Route::apiResource('products', AdminProductController::class);
     });
+
+
 });

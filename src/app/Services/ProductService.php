@@ -97,7 +97,7 @@ class ProductService
             $query->whereHas('stock', fn($q) => $q->where('quantity', '>', 0));
         }
 
-        return $query->paginate(15);
+        return $query->paginate($filters['per_page'] ?? 15);
     }
 
     public function getById($id, $siteId = null)
