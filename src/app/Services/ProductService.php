@@ -15,6 +15,7 @@ class ProductService
                 'name' => $data['name'],
                 'description' => $data['description'],
                 'stock' => $data['stock'] ?? 0,
+                'created_by' => auth('api')->id(),
             ]);
 
             // Add prices for each site
@@ -71,6 +72,11 @@ class ProductService
     public function getAll(array $filters = [])
     {
         $query = Product::with(['prices', 'categories']);
+
+        // Filter by creator (vendeur)
+        if (!empty($filters['created_by'])) {
+            $query->where('created_by', $filters['created_by']);
+        }
 
         // Filter by site (country code: FR, IT, BE)
         if (!empty($filters['site'])) {

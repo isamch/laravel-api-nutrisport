@@ -27,6 +27,7 @@ products [icon: package, color: orange] {
   name string
   description string
   stock int
+  created_by string fk
   created_at timestamp
   updated_at timestamp
 }
@@ -135,6 +136,7 @@ product_images [icon: image, color: pink] {
 users.id < orders.user_id
 users.id < notifications.user_id
 users.id < addresses.user_id
+users.id < products.created_by
 
 sites.id < product_prices.site_id
 sites.id < orders.site_id

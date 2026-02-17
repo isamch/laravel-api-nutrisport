@@ -18,7 +18,10 @@ class ProductController extends Controller
 
     public function index()
     {
-        $products = $this->productService->getAll();
+        $filters = request()->all();
+        $filters['created_by'] = auth('api')->id(); // Only vendeur's products
+        
+        $products = $this->productService->getAll($filters);
         
         return $this->success([
             'products' => ProductResource::collection($products),

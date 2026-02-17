@@ -6,11 +6,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Product extends Model
 {
-    protected $fillable = ['name', 'description', 'stock'];
+    protected $fillable = ['name', 'description', 'stock', 'created_by'];
 
     protected $casts = [
         'stock' => 'integer'
     ];
+
+    public function creator()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 
     public function categories()
     {
