@@ -42,7 +42,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        return $this->success(new ProductResource($product->load(['prices', 'stock', 'categories'])));
+        return $this->success(new ProductResource($product->load(['prices', 'categories', 'images'])));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
@@ -57,5 +57,36 @@ class ProductController extends Controller
         $this->productService->delete($product);
         
         return $this->success(null, 'Product deleted successfully');
+    }
+
+    public function uploadImages(Product $product)
+    {
+        // Ensure vendeur can only upload images to their own products
+        if ($product->created_by !== auth('api')->id()) {
+            return $this->error('Unauthorized', 403);
+        }
+
+        request()->validate([
+            'images' => 'required|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+        ]);
+
+        $uploadedImages = $this->productService->uploadImages($product, request()->file('images'));
+        
+        return $this->success($uploadedImages, 'Images uploaded successfully');
+    }
+
+    public function deleteImage($imageId)
+    {
+        $image = \App\Models\ProductImage::findOrFail($imageId);
+        
+        // Ensure vendeur can only delete images from their own products
+        if ($image->product->created_by !== auth('api')->id()) {
+            return $this->error('Unauthorized', 403);
+        }
+
+        $this->productService->deleteImage($imageId);
+        
+        return $this->success(null, 'Image deleted successfully');
     }
 }

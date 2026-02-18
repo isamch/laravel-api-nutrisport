@@ -72,6 +72,8 @@ Route::middleware('auth:api')->group(function () {
     // Vendeur routes
     Route::prefix('vendeur')->middleware('role:vendeur')->group(function () {
         Route::apiResource('products', VendeurProductController::class);
+        Route::post('products/{product}/images', [VendeurProductController::class, 'uploadImages']);
+        Route::delete('products/images/{imageId}', [VendeurProductController::class, 'deleteImage']);
         Route::get('orders', [VendeurOrderController::class, 'index']);
         Route::get('orders/{id}', [VendeurOrderController::class, 'show']);
     });

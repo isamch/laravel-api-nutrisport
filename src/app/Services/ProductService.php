@@ -44,10 +44,15 @@ class ProductService
     public function update(Product $product, array $data)
     {
         return DB::transaction(function () use ($product, $data) {
-            $updateData = [
-                'name' => $data['name'],
-                'description' => $data['description'],
-            ];
+            $updateData = [];
+
+            if (isset($data['name'])) {
+                $updateData['name'] = $data['name'];
+            }
+
+            if (isset($data['description'])) {
+                $updateData['description'] = $data['description'];
+            }
 
             if (isset($data['stock'])) {
                 $updateData['stock'] = $data['stock'];
