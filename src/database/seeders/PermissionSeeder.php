@@ -103,5 +103,20 @@ class PermissionSeeder extends Seeder
                 'updated_at' => now(),
             ]);
         }
+
+        // Assign permissions to client role
+        $clientRoleId = DB::table('roles')->where('name', 'client')->value('id');
+        $clientPermissions = DB::table('permissions')
+            ->whereIn('name', ['view_product', 'view_own_orders'])
+            ->pluck('id');
+
+        foreach ($clientPermissions as $permissionId) {
+            DB::table('role_permissions')->insert([
+                'role_id' => $clientRoleId,
+                'permission_id' => $permissionId,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
+        }
     }
 }

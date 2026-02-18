@@ -31,6 +31,11 @@ class ProductController extends Controller
         ]);
     }
 
+    public function show(Product $product)
+    {
+        return $this->success(new ProductResource($product->load(['prices', 'categories'])));
+    }
+
     public function getVendeurProducts($vendeurId)
     {
         $filters = request()->all();
