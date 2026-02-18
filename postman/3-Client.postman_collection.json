@@ -1,0 +1,117 @@
+{
+	"info": {
+		"name": "NutriSport - Client",
+		"description": "Client endpoints (requires client token)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Profile",
+			"item": [
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{client_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Name\",\n  \"phone\": \"+33698765432\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/client/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "profile"]
+						}
+					}
+				},
+				{
+					"name": "Update Password",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{client_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"current_password\": \"password\",\n  \"new_password\": \"newpassword123\",\n  \"new_password_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/client/profile/password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "profile", "password"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get My Orders",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{client_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/client/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Get My Orders - By Status",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{client_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/client/orders?status=pending",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "orders"],
+							"query": [{"key": "status", "value": "pending"}]
+						}
+					}
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{client_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/client/orders/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "orders", "1"]
+						}
+					}
+				},
+				{
+					"name": "Checkout (Create Order)",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{client_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"site\": \"FR\",\n  \"address_id\": 1,\n  \"payment_method\": \"bank_transfer\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/client/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "client", "orders"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"},
+		{"key": "client_token", "value": "", "type": "string"}
+	]
+}

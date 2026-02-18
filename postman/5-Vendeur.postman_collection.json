@@ -1,0 +1,137 @@
+{
+	"info": {
+		"name": "NutriSport - Vendeur",
+		"description": "Vendeur endpoints (requires vendeur token)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get My Products",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products"]
+						}
+					}
+				},
+				{
+					"name": "Get My Products - With Filters",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products?site=FR&in_stock=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products"],
+							"query": [
+								{"key": "site", "value": "FR"},
+								{"key": "in_stock", "value": "true"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{vendeur_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Vendeur Product\",\n  \"description\": \"Created by vendeur\",\n  \"stock\": 50,\n  \"prices\": {\n    \"1\": 40.00,\n    \"2\": 45.00,\n    \"3\": 42.00\n  },\n  \"categories\": [1]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products"]
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{vendeur_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated by Vendeur\",\n  \"stock\": 75\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "products", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get Orders",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{vendeur_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/vendeur/orders/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "vendeur", "orders", "1"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"},
+		{"key": "vendeur_token", "value": "", "type": "string"}
+	]
+}

@@ -1,0 +1,244 @@
+{
+	"info": {
+		"name": "NutriSport - Public",
+		"description": "Public endpoints (no auth required)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"]
+						}
+					}
+				},
+				{
+					"name": "Get Products - France",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?site=FR",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [{"key": "site", "value": "FR"}]
+						}
+					}
+				},
+				{
+					"name": "Get Products - Italy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?site=IT",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [{"key": "site", "value": "IT"}]
+						}
+					}
+				},
+				{
+					"name": "Get Products - Belgium",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?site=BE",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [{"key": "site", "value": "BE"}]
+						}
+					}
+				},
+				{
+					"name": "Get Products - By Category",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?category=proteins",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [{"key": "category", "value": "proteins"}]
+						}
+					}
+				},
+				{
+					"name": "Get Products - In Stock",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?in_stock=true",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [{"key": "in_stock", "value": "true"}]
+						}
+					}
+				},
+				{
+					"name": "Get Products - All Filters",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products?site=FR&category=proteins&in_stock=true&per_page=20&page=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products"],
+							"query": [
+								{"key": "site", "value": "FR"},
+								{"key": "category", "value": "proteins"},
+								{"key": "in_stock", "value": "true"},
+								{"key": "per_page", "value": "20"},
+								{"key": "page", "value": "1"}
+							]
+						}
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "products", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Categories",
+			"item": [
+				{
+					"name": "Get All Categories",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/public/categories",
+							"host": ["{{base_url}}"],
+							"path": ["api", "public", "categories"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Cart",
+			"item": [
+				{
+					"name": "Get Cart",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cart",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart"]
+						}
+					}
+				},
+				{
+					"name": "Add to Cart",
+					"request": {
+						"method": "POST",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"product_id\": 1,\n  \"quantity\": 2,\n  \"site\": \"FR\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cart",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart"]
+						}
+					}
+				},
+				{
+					"name": "Update Cart Item",
+					"request": {
+						"method": "PUT",
+						"header": [{"key": "Content-Type", "value": "application/json"}],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"quantity\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/cart/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart", "1"]
+						}
+					}
+				},
+				{
+					"name": "Remove from Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cart/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart", "1"]
+						}
+					}
+				},
+				{
+					"name": "Clear Cart",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/cart",
+							"host": ["{{base_url}}"],
+							"path": ["api", "cart"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Feeds",
+			"item": [
+				{
+					"name": "Get Feed - JSON",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/feeds/products/json",
+							"host": ["{{base_url}}"],
+							"path": ["api", "feeds", "products", "json"]
+						}
+					}
+				},
+				{
+					"name": "Get Feed - XML",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{base_url}}/api/feeds/products/xml",
+							"host": ["{{base_url}}"],
+							"path": ["api", "feeds", "products", "xml"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"}
+	]
+}

@@ -1,0 +1,191 @@
+{
+	"info": {
+		"name": "NutriSport - Admin",
+		"description": "Admin endpoints (requires admin token)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "Get All Products",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products"]
+						}
+					}
+				},
+				{
+					"name": "Get Products - By Vendeur",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/products?created_by=2",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products"],
+							"query": [{"key": "created_by", "value": "2"}]
+						}
+					}
+				},
+				{
+					"name": "Get Vendeur Products",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/vendeurs/2/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "vendeurs", "2", "products"]
+						}
+					}
+				},
+				{
+					"name": "Get Product by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Create Product",
+					"request": {
+						"method": "POST",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{admin_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"New Protein Powder\",\n  \"description\": \"High quality protein\",\n  \"stock\": 100,\n  \"prices\": {\n    \"1\": 45.00,\n    \"2\": 50.00,\n    \"3\": 48.00\n  },\n  \"categories\": [1, 2]\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/products",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products"]
+						}
+					}
+				},
+				{
+					"name": "Update Product",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{admin_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"Updated Product Name\",\n  \"stock\": 150,\n  \"prices\": {\n    \"1\": 50.00\n  }\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products", "1"]
+						}
+					}
+				},
+				{
+					"name": "Delete Product",
+					"request": {
+						"method": "DELETE",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/products/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "products", "1"]
+						}
+					}
+				}
+			]
+		},
+		{
+			"name": "Orders",
+			"item": [
+				{
+					"name": "Get Recent Orders (5 days)",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/orders",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "orders"]
+						}
+					}
+				},
+				{
+					"name": "Get Orders - By Site",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/orders?site_id=1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "orders"],
+							"query": [{"key": "site_id", "value": "1"}]
+						}
+					}
+				},
+				{
+					"name": "Get Orders - By Status",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/orders?status=pending",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "orders"],
+							"query": [{"key": "status", "value": "pending"}]
+						}
+					}
+				},
+				{
+					"name": "Get Order by ID",
+					"request": {
+						"method": "GET",
+						"header": [{"key": "Authorization", "value": "Bearer {{admin_token}}"}],
+						"url": {
+							"raw": "{{base_url}}/api/admin/orders/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "orders", "1"]
+						}
+					}
+				},
+				{
+					"name": "Update Order Status",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{"key": "Authorization", "value": "Bearer {{admin_token}}"},
+							{"key": "Content-Type", "value": "application/json"}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"status\": \"processing\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/admin/orders/1/status",
+							"host": ["{{base_url}}"],
+							"path": ["api", "admin", "orders", "1", "status"]
+						}
+					}
+				}
+			]
+		}
+	],
+	"variable": [
+		{"key": "base_url", "value": "http://127.0.0.1:8000", "type": "string"},
+		{"key": "admin_token", "value": "", "type": "string"}
+	]
+}
