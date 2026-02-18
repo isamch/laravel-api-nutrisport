@@ -22,6 +22,7 @@ Route::prefix('auth')->group(function () {
 // Feeds (public - for third parties)
 Route::get('feeds/products/{format}', [FeedController::class, 'show']);
 
+
 // Public routes
 Route::prefix('public')->group(function () {
     Route::get('products', [PublicProductController::class, 'index']);
