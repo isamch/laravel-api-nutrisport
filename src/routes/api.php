@@ -20,7 +20,8 @@ Route::prefix('auth')->group(function () {
 });
 
 // Feeds (public - for third parties)
-Route::get('feeds/products.{format}', [FeedController::class, 'show']);
+Route::get('feeds/products.{format}', [FeedController::class, 'show'])
+    ->where('format', 'json|xml');
 
 // Public routes
 Route::prefix('public')->group(function () {
@@ -51,7 +52,7 @@ Route::middleware('auth:api')->group(function () {
     Route::prefix('client')->middleware('role:client')->group(function () {
         Route::put('profile', [ProfileController::class, 'update']);
         Route::put('profile/password', [ProfileController::class, 'updatePassword']);
-        
+
         Route::get('orders', [ClientOrderController::class, 'index']);
         Route::get('orders/{id}', [ClientOrderController::class, 'show']);
         Route::post('orders', [ClientOrderController::class, 'store']);
