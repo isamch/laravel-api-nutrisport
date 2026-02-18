@@ -18,7 +18,13 @@ class CartController extends Controller
     private function getIdentifiers(Request $request)
     {
         $userId = auth('api')->check() ? auth('api')->id() : null;
-        $sessionId = $userId ? null : $request->session()->getId();
+        
+        // For guests, use a custom header or generate from IP + User Agent
+        $sessionId = $userId ? null : (
+            $request->header('X-Guest-ID') ?: 
+            md5($request->ip() . $request->userAgent())
+        );
+        
         return [$userId, $sessionId];
     }
 

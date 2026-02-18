@@ -13,7 +13,7 @@ class OrderService
     public function createFromCart($userId, $siteCode, $addressId, $paymentMethod)
     {
         $cart = $this->cartService->get($userId);
-        
+
         if (empty($cart)) {
             throw new \Exception('Cart is empty');
         }
@@ -39,6 +39,12 @@ class OrderService
                     'quantity' => $item['quantity'],
                     'price_at_purchase' => $item['price'],
                 ]);
+
+                // Decrease product stock
+                $product = \App\Models\Product::find($item['product_id']);
+                if ($product) {
+                    $product->decrement('stock', $item['quantity']);
+                }
             }
 
             $this->cartService->clear($userId);
@@ -47,7 +53,7 @@ class OrderService
 
             // Send emails
             \Mail::to($order->user->email)->send(new \App\Mail\OrderCreated($order));
-            
+
             $adminEmail = \App\Models\User::whereHas('role', fn($q) => $q->where('name', 'administrateur'))
                 ->first()?->email;
             if ($adminEmail) {
@@ -79,7 +85,13 @@ class OrderService
             $query->where('user_id', $userId);
         }
 
-        return $query->findOrFail($id);
+        $order = $query->find($id);
+
+        if (!$order) {
+            throw new \Exception($userId ? 'Order not found or you do not have permission to view it' : 'Order not found');
+        }
+
+        return $order;
     }
 
     public function getRecentOrders($days = 5, $filters = [])
@@ -103,7 +115,7 @@ class OrderService
     {
         $order = Order::findOrFail($orderId);
         $order->update(['status' => $status]);
-        
+
         return $order->load(['items.product', 'user']);
     }
 }

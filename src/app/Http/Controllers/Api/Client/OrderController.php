@@ -18,7 +18,7 @@ class OrderController extends Controller
     {
         $filters = $request->only(['status']);
         $orders = $this->orderService->getUserOrders(auth('api')->id(), $filters);
-        
+
         return $this->success([
             'orders' => $orders->items(),
             'pagination' => [
@@ -31,20 +31,27 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = $this->orderService->getById($id, auth('api')->id());
-        
-        return $this->success($order);
+        try {
+            $order = $this->orderService->getById($id, auth('api')->id());
+            return $this->success($order);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 404);
+        }
     }
 
     public function store(CheckoutRequest $request)
     {
-        $order = $this->orderService->createFromCart(
-            auth('api')->id(),
-            $request->site,
-            $request->address_id,
-            $request->payment_method
-        );
+        try {
+            $order = $this->orderService->createFromCart(
+                auth('api')->id(),
+                $request->site,
+                $request->address_id,
+                $request->payment_method
+            );
 
-        return $this->success($order, 'Order created successfully', 201);
+            return $this->success($order, 'Order created successfully', 201);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 400);
+        }
     }
 }

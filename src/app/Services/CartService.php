@@ -16,7 +16,7 @@ class CartService
 
     public function add($productId, $quantity, $siteCode, $userId = null, $sessionId = null)
     {
-        $product = Product::with(['prices' => fn($q) => $q->whereHas('site', fn($q) => $q->where('code', $siteCode))])
+        $product = Product::with(['prices' => fn($q) => $q->whereHas('site', fn($q) => $q->where('country_code', $siteCode))])
             ->findOrFail($productId);
 
         $price = $product->prices->first()?->price;
@@ -24,11 +24,24 @@ class CartService
             throw new \Exception("Product not available for site {$siteCode}");
         }
 
+        // Check stock availability
+        if ($product->stock <= 0) {
+            throw new \Exception("Product is out of stock");
+        }
+
         $key = $this->getKey($userId, $sessionId);
         $cart = $this->get($userId, $sessionId);
 
+        $currentQuantity = $cart[$productId]['quantity'] ?? 0;
+        $newQuantity = $currentQuantity + $quantity;
+
+        // Check if requested quantity exceeds stock
+        if ($newQuantity > $product->stock) {
+            throw new \Exception("Requested quantity exceeds available stock. Available: {$product->stock}");
+        }
+
         if (isset($cart[$productId])) {
-            $cart[$productId]['quantity'] += $quantity;
+            $cart[$productId]['quantity'] = $newQuantity;
         } else {
             $cart[$productId] = [
                 'product_id' => $productId,
@@ -62,6 +75,11 @@ class CartService
         if ($quantity <= 0) {
             unset($cart[$productId]);
         } else {
+            // Check stock when updating
+            $product = Product::findOrFail($productId);
+            if ($quantity > $product->stock) {
+                throw new \Exception("Requested quantity exceeds available stock. Available: {$product->stock}");
+            }
             $cart[$productId]['quantity'] = $quantity;
         }
 
