@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\Admin\ProductController as AdminProductController;
 use App\Http\Controllers\Api\Admin\OrderController as AdminOrderController;
 use App\Http\Controllers\Api\Vendeur\ProductController as VendeurProductController;
 use App\Http\Controllers\Api\Vendeur\OrderController as VendeurOrderController;
+use App\Http\Controllers\Api\FeedController;
 use Illuminate\Support\Facades\Route;
 
 // Auth routes
@@ -17,6 +18,9 @@ Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
 });
+
+// Feeds (public - for third parties)
+Route::get('feeds/products.{format}', [FeedController::class, 'show']);
 
 // Public routes
 Route::prefix('public')->group(function () {

@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\DB;
 
 class ProductService
 {
+    public function getAllForFeed()
+    {
+        return Product::select('id', 'name', 'stock')->get();
+    }
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
