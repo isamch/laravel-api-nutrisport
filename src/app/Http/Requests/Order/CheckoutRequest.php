@@ -16,7 +16,7 @@ class CheckoutRequest extends FormRequest
         return [
             'site' => 'required|in:FR,IT,BE',
             'address_id' => 'required|exists:addresses,id',
-            'payment_method' => 'required|in:credit_card,paypal,bank_transfer'
+            'payment_method' => 'required|in:bank_transfer'
         ];
     }
 }
