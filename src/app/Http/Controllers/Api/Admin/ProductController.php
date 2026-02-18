@@ -33,7 +33,7 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
-        return $this->success(new ProductResource($product->load(['prices', 'categories'])));
+        return $this->success(new ProductResource($product->load(['prices', 'categories', 'images'])));
     }
 
     public function getVendeurProducts($vendeurId)
@@ -72,5 +72,24 @@ class ProductController extends Controller
         $this->productService->delete($product);
         
         return $this->success(null, 'Product deleted successfully');
+    }
+
+    public function uploadImages(Product $product)
+    {
+        request()->validate([
+            'images' => 'required|array|max:5',
+            'images.*' => 'image|mimes:jpeg,png,jpg,webp|max:2048'
+        ]);
+
+        $uploadedImages = $this->productService->uploadImages($product, request()->file('images'));
+        
+        return $this->success($uploadedImages, 'Images uploaded successfully');
+    }
+
+    public function deleteImage($imageId)
+    {
+        $this->productService->deleteImage($imageId);
+        
+        return $this->success(null, 'Image deleted successfully');
     }
 }

@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use App\Models\ProductPrice;
+use App\Models\ProductImage;
 use Illuminate\Support\Facades\DB;
 
 class ProductService
@@ -75,7 +76,7 @@ class ProductService
 
     public function getAll(array $filters = [])
     {
-        $query = Product::with(['prices', 'categories']);
+        $query = Product::with(['prices', 'categories', 'images']);
 
         // Filter by creator (vendeur)
         if (!empty($filters['created_by'])) {
@@ -139,6 +140,41 @@ class ProductService
 
     public function delete(Product $product)
     {
+        // Delete all product images from storage
+        foreach ($product->images as $image) {
+            \Storage::disk('public')->delete($image->url);
+        }
+        
         return $product->delete();
+    }
+
+    public function uploadImages(Product $product, array $images)
+    {
+        $uploadedImages = [];
+        $sortOrder = $product->images()->max('sort_order') ?? 0;
+
+        foreach ($images as $image) {
+            $path = $image->store("products/{$product->id}", 'public');
+            
+            $productImage = ProductImage::create([
+                'product_id' => $product->id,
+                'url' => $path,
+                'sort_order' => ++$sortOrder
+            ]);
+
+            $uploadedImages[] = [
+                'id' => $productImage->id,
+                'url' => \Storage::url($path)
+            ];
+        }
+
+        return $uploadedImages;
+    }
+
+    public function deleteImage($imageId)
+    {
+        $image = ProductImage::findOrFail($imageId);
+        \Storage::disk('public')->delete($image->url);
+        return $image->delete();
     }
 }

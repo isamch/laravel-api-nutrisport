@@ -61,6 +61,8 @@ Route::middleware('auth:api')->group(function () {
     // Admin routes
     Route::prefix('admin')->middleware('role:administrateur')->group(function () {
         Route::apiResource('products', AdminProductController::class);
+        Route::post('products/{product}/images', [AdminProductController::class, 'uploadImages']);
+        Route::delete('products/images/{imageId}', [AdminProductController::class, 'deleteImage']);
         Route::get('vendeurs/{vendeurId}/products', [AdminProductController::class, 'getVendeurProducts']);
         Route::get('orders', [AdminOrderController::class, 'index']);
         Route::get('orders/{id}', [AdminOrderController::class, 'show']);
