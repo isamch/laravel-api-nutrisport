@@ -17,71 +17,86 @@ class CartController extends Controller
 
     private function getIdentifiers(Request $request)
     {
-        $userId = auth('api')->check() ? auth('api')->id() : null;
+        // Only authenticated users can use cart
+        if (!auth('api')->check()) {
+            throw new \Exception('Please login to use cart');
+        }
         
-        // For guests, use a custom header or generate from IP + User Agent
-        $sessionId = $userId ? null : (
-            $request->header('X-Guest-ID') ?: 
-            md5($request->ip() . $request->userAgent())
-        );
-        
-        return [$userId, $sessionId];
+        return [auth('api')->id(), null];
     }
 
     public function index(Request $request)
     {
-        [$userId, $sessionId] = $this->getIdentifiers($request);
-        $cart = $this->cartService->get($userId, $sessionId);
-        $total = $this->cartService->getTotal($userId, $sessionId);
+        try {
+            [$userId, $sessionId] = $this->getIdentifiers($request);
+            $cart = $this->cartService->get($userId);
+            $total = $this->cartService->getTotal($userId);
 
-        return $this->success([
-            'items' => array_values($cart),
-            'total' => $total
-        ]);
+            return $this->success([
+                'items' => array_values($cart),
+                'total' => $total
+            ]);
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 401);
+        }
     }
 
     public function add(AddToCartRequest $request)
     {
-        [$userId, $sessionId] = $this->getIdentifiers($request);
-        
-        $cart = $this->cartService->add(
-            $request->product_id,
-            $request->quantity,
-            $request->site,
-            $userId,
-            $sessionId
-        );
+        try {
+            [$userId, $sessionId] = $this->getIdentifiers($request);
+            
+            $cart = $this->cartService->add(
+                $request->product_id,
+                $request->quantity,
+                $request->site,
+                $userId
+            );
 
-        return $this->success(array_values($cart), 'Product added to cart');
+            return $this->success(array_values($cart), 'Product added to cart');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 400);
+        }
     }
 
     public function update(UpdateCartRequest $request, $productId)
     {
-        [$userId, $sessionId] = $this->getIdentifiers($request);
-        
-        $cart = $this->cartService->update(
-            $productId,
-            $request->quantity,
-            $userId,
-            $sessionId
-        );
+        try {
+            [$userId, $sessionId] = $this->getIdentifiers($request);
+            
+            $cart = $this->cartService->update(
+                $productId,
+                $request->quantity,
+                $userId
+            );
 
-        return $this->success(array_values($cart), 'Cart updated');
+            return $this->success(array_values($cart), 'Cart updated');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 400);
+        }
     }
 
     public function remove(Request $request, $productId)
     {
-        [$userId, $sessionId] = $this->getIdentifiers($request);
-        $cart = $this->cartService->remove($productId, $userId, $sessionId);
+        try {
+            [$userId, $sessionId] = $this->getIdentifiers($request);
+            $cart = $this->cartService->remove($productId, $userId);
 
-        return $this->success(array_values($cart), 'Product removed from cart');
+            return $this->success(array_values($cart), 'Product removed from cart');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 400);
+        }
     }
 
     public function clear(Request $request)
     {
-        [$userId, $sessionId] = $this->getIdentifiers($request);
-        $this->cartService->clear($userId, $sessionId);
+        try {
+            [$userId, $sessionId] = $this->getIdentifiers($request);
+            $this->cartService->clear($userId);
 
-        return $this->success([], 'Cart cleared');
+            return $this->success([], 'Cart cleared');
+        } catch (\Exception $e) {
+            return $this->error($e->getMessage(), 400);
+        }
     }
 }

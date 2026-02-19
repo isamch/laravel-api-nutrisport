@@ -42,11 +42,19 @@ class ProductController extends Controller
 
     public function show(Product $product)
     {
+        if ($product->created_by !== auth('api')->id()) {
+            return $this->error('Unauthorized', 403);
+        }
+        
         return $this->success(new ProductResource($product->load(['prices', 'categories', 'images'])));
     }
 
     public function update(UpdateProductRequest $request, Product $product)
     {
+        if ($product->created_by !== auth('api')->id()) {
+            return $this->error('Unauthorized', 403);
+        }
+        
         $product = $this->productService->update($product, $request->validated());
         
         return $this->success(new ProductResource($product), 'Product updated successfully');
@@ -54,6 +62,10 @@ class ProductController extends Controller
 
     public function destroy(Product $product)
     {
+        if ($product->created_by !== auth('api')->id()) {
+            return $this->error('Unauthorized', 403);
+        }
+        
         $this->productService->delete($product);
         
         return $this->success(null, 'Product deleted successfully');

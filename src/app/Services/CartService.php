@@ -9,14 +9,14 @@ class CartService
 {
     private const TTL = 259200; // 3 days
 
-    private function getKey($userId = null, $sessionId = null)
+    private function getKey($userId)
     {
-        return $userId ? "cart:user:{$userId}" : "cart:guest:{$sessionId}";
+        return "cart:user:{$userId}";
     }
 
-    public function add($productId, $quantity, $siteCode, $userId = null, $sessionId = null)
+    public function add($productId, $quantity, $siteCode, $userId)
     {
-        $product = Product::with(['prices' => fn($q) => $q->whereHas('site', fn($q) => $q->where('country_code', $siteCode))])
+        $product = Product::with(['prices' => fn($q) => $q->whereHas('site', fn($q) => $q->where('country_code', $siteCode)), 'images'])
             ->findOrFail($productId);
 
         $price = $product->prices->first()?->price;
@@ -29,8 +29,8 @@ class CartService
             throw new \Exception("Product is out of stock");
         }
 
-        $key = $this->getKey($userId, $sessionId);
-        $cart = $this->get($userId, $sessionId);
+        $key = $this->getKey($userId);
+        $cart = $this->get($userId);
 
         $currentQuantity = $cart[$productId]['quantity'] ?? 0;
         $newQuantity = $currentQuantity + $quantity;
@@ -46,8 +46,11 @@ class CartService
             $cart[$productId] = [
                 'product_id' => $productId,
                 'name' => $product->name,
+                'description' => $product->description,
                 'price' => $price,
                 'quantity' => $quantity,
+                'stock' => $product->stock,
+                'image' => $product->images->first() ? url(\Storage::url($product->images->first()->url)) : null,
                 'site' => $siteCode
             ];
         }
@@ -56,17 +59,17 @@ class CartService
         return $cart;
     }
 
-    public function get($userId = null, $sessionId = null)
+    public function get($userId)
     {
-        $key = $this->getKey($userId, $sessionId);
+        $key = $this->getKey($userId);
         $data = Redis::get($key);
         return $data ? json_decode($data, true) : [];
     }
 
-    public function update($productId, $quantity, $userId = null, $sessionId = null)
+    public function update($productId, $quantity, $userId)
     {
-        $key = $this->getKey($userId, $sessionId);
-        $cart = $this->get($userId, $sessionId);
+        $key = $this->getKey($userId);
+        $cart = $this->get($userId);
 
         if (!isset($cart[$productId])) {
             throw new \Exception("Product not found in cart");
@@ -87,10 +90,10 @@ class CartService
         return $cart;
     }
 
-    public function remove($productId, $userId = null, $sessionId = null)
+    public function remove($productId, $userId)
     {
-        $key = $this->getKey($userId, $sessionId);
-        $cart = $this->get($userId, $sessionId);
+        $key = $this->getKey($userId);
+        $cart = $this->get($userId);
 
         unset($cart[$productId]);
 
@@ -98,16 +101,16 @@ class CartService
         return $cart;
     }
 
-    public function clear($userId = null, $sessionId = null)
+    public function clear($userId)
     {
-        $key = $this->getKey($userId, $sessionId);
+        $key = $this->getKey($userId);
         Redis::del($key);
         return [];
     }
 
-    public function getTotal($userId = null, $sessionId = null)
+    public function getTotal($userId)
     {
-        $cart = $this->get($userId, $sessionId);
+        $cart = $this->get($userId);
         $total = 0;
 
         foreach ($cart as $item) {

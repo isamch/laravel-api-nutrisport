@@ -19,7 +19,7 @@ class OrderService
         }
 
         $total = $this->cartService->getTotal($userId);
-        $siteId = \App\Models\Site::where('code', $siteCode)->value('id');
+        $siteId = \App\Models\Site::where('country_code', $siteCode)->value('id');
 
         return DB::transaction(function () use ($userId, $siteId, $addressId, $paymentMethod, $total, $cart) {
             $order = Order::create([
