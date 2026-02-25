@@ -4,13 +4,20 @@ services:
   php:
     build:
       context: ./docker/php
+    container_name: nutrisport_php
+    restart: unless-stopped
     volumes:
       - ./src:/var/www/html
+    depends_on:
+      - mysql
+      - redis
     networks:
       - laravel
 
   nginx:
     image: nginx:alpine
+    container_name: nutrisport_nginx
+    restart: unless-stopped
     ports:
       - "8000:80"
     volumes:
@@ -23,23 +30,27 @@ services:
 
   mysql:
     image: mysql:8.0
+    container_name: nutrisport_mysql
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: laravel
       MYSQL_USER: laravel
       MYSQL_PASSWORD: secret
     ports:
-      - "3306:3306"
+      - "3307:3306"
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./docker/mysql/my.cnf:/etc/mysql/conf.d/my.cnf
     networks:
       - laravel
+    command: --default-authentication-plugin=mysql_native_password
 
   redis:
     image: redis:alpine
+    container_name: nutrisport_redis
+    restart: unless-stopped
     ports:
-      - "6379:6379"
+      - "6380:6379"
     networks:
       - laravel
 
